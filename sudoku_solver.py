@@ -5,7 +5,7 @@ import json
 def readStructure(input):
     rows = input.split("\n")
     rows = np.array(rows)
-    Values = np.zeros((9,9))    #row, column
+    Values = np.zeros((9,9)).astype(int)    #row, column
     ValueIndex = 0
     index = 0
     for row in rows:
@@ -48,8 +48,6 @@ def initialElimination(inputStructure,fixedValues, possibleValues):
     fixedValues, possibleValues = checkColumns(fixedValues, possibleValues)
     #TODO block
     fixedValues, possibleValues = checkBlocks(fixedValues, possibleValues)
-    #TODO transfer possibleValues to fixedValues
-    fixedValues, possibleValues = transferFactors(fixedValues, possibleValues)
     return fixedValues, possibleValues
 
 def checkRows(fixedValues, possibleValues):
@@ -111,17 +109,6 @@ def checkBlocks(fixedValues, possibleValues):
                                 pass
     return fixedValues, possibleValues
 
-def transferFactors(fixedValues, possibleValues):
-    for row in range(9):
-        for column in range(9):
-            try:
-                if len(possibleValues[str(row)+"+"+str(column)]) == 1:
-                    fixedValues[str(row)+"+"+str(column)] = possibleValues[str(row)+"+"+str(column)]
-                    del possibleValues[str(row)+"+"+str(column)]
-            except Exception as e:
-                pass#print(e)
-    return fixedValues, possibleValues
-
 def printFixed(fixedValues):
     Structure = ''
     for row in range(9):
@@ -142,6 +129,22 @@ def printFixed(fixedValues):
             Structure = Structure + "------+-------+------\n"
     return Structure
 
+#TODO valid row
+#TODO valid column
+#TODO valid block
+#TODO transfer
+
+def brute(fixedValues, possibleValues, row = 0, column = 0):
+
+    # if column < 9:
+    #     column = column + 1
+    # elif row < 9:
+    #     column = 0
+    #     row = row + 1
+    # else:
+    #     pass
+    return fixedValues, possibleValues
+
 f = open("input.txt","r")
 input = f.read() #get the str 
 f.close()
@@ -152,13 +155,7 @@ inputStructure = readStructure(input)
 fixedFactors = FixedFactor(inputStructure)
 possibleFactors = InitialPossibleFactors(inputStructure)
 
-print(printFixed(fixedFactors))
 fixedFactors, possibleFactors = initialElimination(inputStructure, fixedFactors, possibleFactors)
 
-print(printFixed(fixedFactors))
-fixedFactors, possibleFactors = initialElimination(inputStructure, fixedFactors, possibleFactors)
-
-print(printFixed(fixedFactors))
-
-
+print(fixedFactors)
 print(possibleFactors)
