@@ -41,12 +41,106 @@ def FixedFactor(inputStructure):
                 FixedFactor[str(row)+"+"+str(column)] = inputStructure[row,column]
     return FixedFactor
 
-def initialElimination(inputStructure, possibleValues):
+def initialElimination(inputStructure,fixedValues, possibleValues):
     #TODO rows
+    fixedValues, possibleValues = checkRows(fixedValues, possibleValues)
     #TODO column
+    fixedValues, possibleValues = checkColumns(fixedValues, possibleValues)
     #TODO block
-    pass
+    fixedValues, possibleValues = checkBlocks(fixedValues, possibleValues)
+    #TODO transfer possibleValues to fixedValues
+    fixedValues, possibleValues = transferFactors(fixedValues, possibleValues)
+    return fixedValues, possibleValues
 
+def checkRows(fixedValues, possibleValues):
+    for row in range(9):
+        for number in range(9):
+            ExistNumber = False
+            for column in range(9):
+                try:
+                    if number == fixedValues[str(row)+"+"+str(column)]:
+                        ExistNumber = True
+                except:
+                    pass
+            if ExistNumber == True:
+                for column in range(9):
+                    try:
+                        possibleValues[str(row)+"+"+str(column)].remove(number)
+                    except:
+                        pass
+    return fixedValues, possibleValues
+
+def checkColumns(fixedValues, possibleValues):
+    for column in range(9):
+        for number in range(9):
+            ExistNumber = False
+            for row in range(9):
+                try:
+                    if number == fixedValues[str(row)+"+"+str(column)]:
+                        ExistNumber = True
+                except:
+                    pass
+            if ExistNumber == True:
+                for row in range(9):
+                    try:
+                        possibleValues[str(row)+"+"+str(column)].remove(number)
+                    except:
+                        pass
+    return fixedValues, possibleValues
+
+def checkBlocks(fixedValues, possibleValues):
+    blockCR = [0, 3, 6]
+    for Brow in blockCR:
+        for Bcolumn in blockCR:
+            #gives all coordinates of start of the blocks
+            for number in range(9):
+                ExistNumber = False
+                for row in range(3):
+                    for column in range(3):
+                        try:
+                            if fixedValues[str(Brow+row)+"+"+str(Bcolumn+column)] == number:
+                                ExistNumber = True
+                        except:
+                            pass
+                if ExistNumber == True:
+                    for row in range(3):
+                        for column in range(3):
+                            try:
+                                possibleValues[str(Brow+row)+"+"+str(Bcolumn+column)].remove(number)
+                            except:
+                                pass
+    return fixedValues, possibleValues
+
+def transferFactors(fixedValues, possibleValues):
+    for row in range(9):
+        for column in range(9):
+            try:
+                if len(possibleValues[str(row)+"+"+str(column)]) == 1:
+                    fixedValues[str(row)+"+"+str(column)] = possibleValues[str(row)+"+"+str(column)]
+                    del possibleValues[str(row)+"+"+str(column)]
+            except Exception as e:
+                pass#print(e)
+    return fixedValues, possibleValues
+
+def printFixed(fixedValues):
+    Structure = ''
+    for row in range(9):
+        for column in range(9):
+            try:
+                target = fixedValues[str(row)+"+"+str(column)]
+                target = int(target)
+                target = str(target) + " "
+            except:
+                target = 'X '
+            
+            if column in [2, 5]:
+                Structure = Structure + target + "| "
+            else:
+                Structure = Structure + target
+        Structure = Structure + "\n"
+        if row in [2, 5]:
+            Structure = Structure + "------+-------+------\n"
+    return Structure
 
 f = open("input.txt","r")
 input = f.read() #get the str 
@@ -55,6 +149,16 @@ f.close()
 InputValues = ['1', '2', '3', '4', '5', '6' ,'7' ,'8' ,'9']
 
 inputStructure = readStructure(input)
-fixedFactor = FixedFactor(inputStructure)
-print(fixedFactor)
+fixedFactors = FixedFactor(inputStructure)
 possibleFactors = InitialPossibleFactors(inputStructure)
+
+print(printFixed(fixedFactors))
+fixedFactors, possibleFactors = initialElimination(inputStructure, fixedFactors, possibleFactors)
+
+print(printFixed(fixedFactors))
+fixedFactors, possibleFactors = initialElimination(inputStructure, fixedFactors, possibleFactors)
+
+print(printFixed(fixedFactors))
+
+
+print(possibleFactors)
